@@ -6,29 +6,21 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
-import com.opencsv.exceptions.CsvException;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
 
 public class Main {
 
     public static void main(String[] args) {
         String[] columnMapping = {"id", "firstName", "lastName", "country", "age"};
-        String fileName = "src/dataFiles/data.csv";
-
+        String fileName = "src/dataFiles/data.csv",
+               jsonFileName = "src/dataFiles/data.json";
         List<Employee> list = parseCSV(columnMapping, fileName);
-        System.out.println();
         String json = listToJson(list);
-        System.out.println(json);
-        jsonToFail(list);
-        System.out.println();
-
+        jsonToFail(json, jsonFileName);
     }
 
     private static String listToJson(List<Employee> list) {
@@ -37,14 +29,10 @@ public class Main {
         return gson.toJson(list);
     }
 
-    private static void jsonToFail(List<Employee> list) {
-        JSONObject obj = new JSONObject();
-        JSONArray jsonArray = new JSONArray();
-        //  obj.put(listToJson());
-        try {
-            FileWriter file = new FileWriter("src/dataFiles/data.json");
-            file.write(obj.toJSONString());
-            file.flush();
+    private static void jsonToFail(String json, String jsonNameFile) {
+        try (FileWriter fileWriter = new FileWriter(jsonNameFile)) {
+            fileWriter.write(json);
+            fileWriter.flush();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -60,11 +48,8 @@ public class Main {
             CsvToBean<Employee> csv = new CsvToBeanBuilder<Employee>(csvReader)
                     .withMappingStrategy(strategy)
                     .build();
-
             listPars = csv.parse();
-            System.out.println();
-            System.out.println("\t* ** * **\t");
-            listPars.forEach(System.out::println);
+           // listPars.forEach(System.out::println);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -72,3 +57,6 @@ public class Main {
     }
 
 }
+
+
+
